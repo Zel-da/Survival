@@ -17,33 +17,56 @@ public abstract class CloseWeaponController : MonoBehaviour
 
     protected RaycastHit hitInfo;
 
+    [SerializeField]
+    protected LayerMask layerMask;
+
+    //필요한 컴포넌트
+    private PlayerController thePlayerController;
+
+    void Start()
+    {
+        thePlayerController = FindObjectOfType<PlayerController>();
+    }
 
     protected void TryAttack()
     {
-        if (Input.GetButton("Fire1"))
+        if (!Inventory.inventoryActivated)
         {
-            if (!isAttack)
+            if (Input.GetButton("Fire1"))
             {
-                StartCoroutine(AttackCoroutine());
+                if (!isAttack)
+                {
+                    if (CheckObject())
+                    {
+                        if (currentCloseWeapon.isAxe && hitInfo.transform.tag == "Tree")
+                        {
+                            //StartCoroutine(thePlayerController.TreeLookCoroutine(hitInfo.transform.GetComponent<TreeComponent>().GetTreeCenterPosition()));
+                            //StartCoroutine(AttackCoroutine("Chop", currentCloseWeapon.workDelayA, currentCloseWeapon.workDelayB, currentCloseWeapon.workDelay));
+                            return;
+                        }
+                    }
+
+                    StartCoroutine(AttackCoroutine("Attack", currentCloseWeapon.attackDelayA, currentCloseWeapon.attackDelayB, currentCloseWeapon.attackDelay));
+                }
             }
         }
     }
 
-    protected IEnumerator AttackCoroutine()
+    protected IEnumerator AttackCoroutine(string swingType, float _delayA, float _delayB, float _delayC)
     {
         isAttack = true;
-        currentCloseWeapon.anim.SetTrigger("Attack");
+        currentCloseWeapon.anim.SetTrigger(swingType);
 
-        yield return new WaitForSeconds(currentCloseWeapon.attackDelayA);
+        yield return new WaitForSeconds(_delayA);
         isSwing = true;
 
         StartCoroutine(HitCoroutine());
 
-        yield return new WaitForSeconds(currentCloseWeapon.attackDelayB);
+        yield return new WaitForSeconds(_delayB);
         isSwing = false;
 
 
-        yield return new WaitForSeconds(currentCloseWeapon.attackDelay - currentCloseWeapon.attackDelayA - currentCloseWeapon.attackDelayB);
+        yield return new WaitForSeconds(_delayC - _delayA - _delayB);
         isAttack = false;
     }
 
@@ -54,7 +77,7 @@ public abstract class CloseWeaponController : MonoBehaviour
 
     protected bool CheckObject()
     {
-        if (Physics.Raycast(transform.position, transform.forward, out hitInfo, currentCloseWeapon.range))
+        if (Physics.Raycast(transform.position, transform.forward, out hitInfo, currentCloseWeapon.range, layerMask))
         {
             return true;
         }

@@ -158,6 +158,14 @@ public class StatusController : MonoBehaviour
             currentHp = hp;
     }
 
+    public void IncreaseSP(int _count)
+    {
+        if (currentSp + _count < sp)
+            currentSp += _count;
+        else
+            currentHp = sp;
+    }
+
     public void DecreaseHP(int _count)
     {
         if (currentDp > 0)

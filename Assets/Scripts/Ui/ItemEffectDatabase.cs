@@ -89,6 +89,5 @@ public class ItemEffectDatabase : MonoBehaviour
             }
             Debug.Log("ItemEffectDatabase에 일치하는 itemName 없습니다");
         }
-
     }
 }
